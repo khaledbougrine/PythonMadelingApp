@@ -54,3 +54,13 @@ class MagneticMaterial:
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
     print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+
+if __name__ == '__main__':
+    # freq = np.linspace(2.5, 4.5, 200)
+    freq=2.5
+    magnetiqueMaterial = MagneticMaterial(freq)
+    Ms = 160e3
+    Hi = 240e3
+    nu = 0.01
+    R = 0.002
+    gumn = gammaint(freq, R, Hi, Ms, nu, magnetiqueMaterial)

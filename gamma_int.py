@@ -62,19 +62,15 @@ def gammaint(f, R, Hi, Ms, nu, ferrite):
     gamma=(50-zp)/(50+zp)
     return gamma
 
-    # gumn_2 = np.isnan(gumn_1)
 
-    # gumn_I = np.where(gumn_2, -1, gumn_1)
-    #
-    # gumn = gumn_I
 if __name__ == '__main__':
     # freq = np.linspace(2.5, 4.5, 200)
-    freq=2.5
+    freq=0.1
     magnetiqueMaterial = MagneticMaterial(freq)
     Ms = 160e3
     Hi = 240e3
     nu = 0.01
-    R = 0.002
+    R = 2
     gumn = gammaint(freq, R, Hi, Ms, nu, magnetiqueMaterial)
 
 
