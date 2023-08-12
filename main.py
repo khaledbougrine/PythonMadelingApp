@@ -5,18 +5,24 @@ from Structure import *
 from Utils import plot
 from gamma_int import *
 from constants import *
+from Rf.newMagnetiqueMaterial import *
 
+
+def smooth_vector(vector, window_size):
+    window = np.ones(window_size) / window_size
+    smoothed_vector = np.convolve(vector, window, mode='same')
+    return smoothed_vector
 # Press Maj+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    Ms = 160e3
-    Hi = 240e3
-    nu = 0.01
-    R = 0.002
-    z_0=50
+    # Ms = 160e3
+    # Hi = 240e3
+    # nu = 0.01
+    # R = 0.002
+    # z_0=50
     #
     B1_eta_1 = np.zeros(N)
     B1_eta_2 = np.zeros(N)
@@ -25,36 +31,39 @@ if __name__ == '__main__':
     print('B1_eta_1++++++++++++++++++++++++')
     print(B1_eta_1)
 
-    freq = np.linspace(2, 8, 200)
     X_M13 = []
     X_M11 = []
     X_M12 = []
+    R = 2500
+    z0 = 120 * math.pi
+    z_0 = 0.0000001 * z0  # zo=50
 
-
-    for f in freq:
-        magnetiqueMaterial = MagneticMaterial(f)
+    for fi in range(f.size):
+        # magnetiqueMaterial = MagneticMaterial(f)
         # magnetiqueMaterial.printMu()
         # magnetiqueMaterial.plot(magnetiqueMaterial.mu_eff,'mueff')
         # magnetiqueMaterial.plot(magnetiqueMaterial.keff,'keff')
-        gumn = gammaint(f, R, Hi, Ms, nu, magnetiqueMaterial)
+        # gumn = gammaint(f, R, Hi, Ms, nu, magnetiqueMaterial)
+        gumn = gammaint( R, EPSr,mu[fi],k[fi],mu_eff[fi],k_eff[fi],beta[fi])
+
         # Calculate A1_eta_1
         A1_eta_1 = -B1_eta_1 + (1/np.sqrt((z_0)))* E_stat_1
-        print('B1_eta_1')
-        print(B1_eta_1)
-
-        print('H_M')
-        print(H_M)
-        print('E_stat_1')
-        print(E_stat_1)
+        # print('B1_eta_1')
+        # print(B1_eta_1)
+        #
+        # print('H_M')
+        # print(H_M)
+        # print('E_stat_1')
+        # print(E_stat_1)
         a1_eta_1 = np.fft.fft(A1_eta_1)
         b1_eta_1 = gumn * a1_eta_1
-        B1_eta_1 = np.fft.ifft(b1_eta_1)
+        B1_eta_1 = np.fft.ifft(np.fft.fftshift(b1_eta_1))
 
         # Calculate A1_eta_2
         A1_eta_2 = -B1_eta_2 * H_M + (1/np.sqrt((z_0)))*E_stat_2
         a1_eta_2 = np.fft.fft(A1_eta_2)
         b1_eta_2 = gumn * a1_eta_2
-        B1_eta_2 = np.fft.ifft(b1_eta_2)
+        B1_eta_2 = np.fft.ifft(np.fft.fftshift(b1_eta_2))
 
         # Calculate A1_eta_3
         A1_eta_3 = -B1_eta_3 * H_M + (1/np.sqrt((z_0)))* E_stat_3
@@ -93,8 +102,8 @@ if __name__ == '__main__':
         # *******somme moyenne de S_M1=1/3(S1+S2+S3)
 
         S_M = (S1 + S2 + S3)
-        S_M12 = (S1 + conjK * S2 + K * S3)
-        S_M13 = (S1 + K * S2 + conjK * S3)
+        S_M12 = (S1 + conjK * S2 + KVar * S3)
+        S_M13 = (S1 + KVar * S2 + conjK * S3)
 
         # % *****Vecteur S_M en fonction de la fr?quence
         X_M13.append(S_M13)
@@ -107,10 +116,14 @@ if __name__ == '__main__':
 
     # Create axes
     plt.figure(figsize=(8, 6))
-    plt.plot(freq,np.log10(np.abs(X_M13)) , label='imag')
-    plt.plot(freq,np.log10(np.abs(X_M11)) , label='ff')
-    plt.plot(freq,np.log10(np.abs(X_M12)) , label='12')
+    # plt.plot(f,20*np.log10(np.abs(X_M13)) , label='imag')
+    # plt.plot(f,20*np.log10(np.abs(X_M11)) , label='ff')
+    # plt.plot(f,20*np.log10(np.abs(X_M12)) , label='12')
 
+
+    plt.plot(f,X_M13 , label='13')
+    plt.plot(f,X_M11 , label='11')
+    plt.plot(f,X_M12 , label='12')
 
     plt.xlabel('x')
     plt.ylabel('y')

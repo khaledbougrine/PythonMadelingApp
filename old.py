@@ -107,7 +107,7 @@ if __name__ == '__main__':
     # surface_impedance()
     fo = 4.2
     fm = 2.8
-    f = np.linspace(2, 13, 3000)
+    f = np.linspace(5, 12, 3000)
     alpha = 0.01
     f0 = fo - 1j * alpha * f
     mu0 = 4 * m.pi * pow(10, -7)
@@ -118,8 +118,8 @@ if __name__ == '__main__':
     mu_eff = (np.square(mu) - np.square(k)) / mu
     beta = 2 * m.pi * f * np.sqrt(mu_eff * EPSr)
 
-    R = 2000
-    modelist = np.arange(-122, 122)
+    R = 2500
+    modelist = np.arange(-151, 151)
     z0 = 120* math.pi
     z0=0.0000001*z0
     # zn=((1j * jv(n, beta * R)) / (

@@ -2,54 +2,21 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy.special import jv, jvp
 from MagneticMaterial import *
-from constants import N
+from Rf.newMagnetiqueMaterial import *
+from constants import *
 
 
-def gammaint(f, R, Hi, Ms, nu, ferrite):
+def gammaint(R, epsf, mu, k, mueff, keff, beta):
     # Frequency
-    c = 3e8
-    w = 2 * np.pi * f
+    z0 = 0.0001  # zo=50
+    n = np.linspace(-(N - 1) / 2, (N - 1) / 2, N)
+    z = (1j * jv(n, beta * R)) / (
+            np.sqrt(EPSr / mueff) * (jvp(n, beta * R) + n * (k / mu) * (jv(n, beta * R) / (beta * R))))
+    taux = ((z - z0) / (z + z0))
 
-    # Permeability
-    mu0 = 4 * np.pi * 1e-7
-
-    # Magnetization and fields
-    gamma = 2 * np.pi * 28e9
-    wm = ferrite.omegaM
-    w0 = ferrite.omegaO
-    mu = ferrite.mu
-    alpha = ferrite.k
-
-    # Permittivity
-    eps0 = 8.854e-12
-    epsf = 14.6
-
-    # Radius
-    lamda = c / f
-
-    # Coefficients
-    mueff = ferrite.mu_eff
-    keff = ferrite.keff
-    print( keff)
-    print(mueff)
-
-
-    z0 = 120 * np.pi*pow(10,-12)
-    # zo=50
-    r = R
-    arg = keff * r
-
-    # n = np.arange(-(N // 2), N // 2)
-    # n = np.ones(N)
-    n=np.linspace(-(N-1)/2,(N-1)/2,N)
-    derivbesselj = jvp(n, arg)
-    besselj = jv(n, arg)
     # zp = (1j * w * mueff * jv(n, arg)) / (keff * derivbesselj - (n * alpha) / (r * mu) * jv(n, arg))
-    zp1 = (1j * besselj)
-    zp2= (np.sqrt(epsf / mueff) * (derivbesselj * n * (alpha / mu) * (besselj / arg)))
-    zp=(zp1)/(zp2)
+
     # return np.diag(zp)
-    print(zp)
     # plt.figure(figsize=(8, 6))
     # plt.plot(np.linspace(0,303,303), n, label='real')
     # plt.plot(ferrite.freq, np.imag(zp), label='imag')
@@ -59,19 +26,24 @@ def gammaint(f, R, Hi, Ms, nu, ferrite):
     # plt.legend()
     # plt.grid(True)
     # plt.show()
-    gamma=(50-zp)/(50+zp)
-    return gamma
+    return z
 
 
 if __name__ == '__main__':
     # freq = np.linspace(2.5, 4.5, 200)
-    freq=0.1
-    magnetiqueMaterial = MagneticMaterial(freq)
-    Ms = 160e3
-    Hi = 240e3
-    nu = 0.01
-    R = 2
-    gumn = gammaint(freq, R, Hi, Ms, nu, magnetiqueMaterial)
 
+    taux = []
 
+    R = 2500
+    # R = 250
+    for fi in range(f.size):
+        # for n in np.linspace(-(N - 1) / 2, (N - 1) / 2, N):
+        gumn = gammaint(R, EPSr, mu[fi], k[fi], mu_eff[fi], k_eff[fi], beta[fi])
+        # gumn =  gammaint(R, EPSr, mu, k, mu_eff, k_eff, beta)
+        taux.append(np.sum(gumn))
 
+    np.savetxt('tauxImg.txt', np.real(taux))
+    plt.plot(f, np.real(taux), label='Treal')
+    plt.plot(f, np.imag(taux), label='im')
+    # plt.ylim(-1,1)
+    plt.show()
