@@ -7,9 +7,7 @@ from Utils import plot
 from constants import *
 
 Circulator = np.linspace(1, P, P)
-z_0 = 50
-R = 0.002
-FONT_SIZE_PIXEL = 30
+FONT_SIZE_PIXEL = 45
 METAL_SIZE_PIXEL = int(((P / 3) - (FONT_SIZE_PIXEL)))
 FONT = np.linspace(1, FONT_SIZE_PIXEL, FONT_SIZE_PIXEL)
 METAL = np.linspace(1, METAL_SIZE_PIXEL, METAL_SIZE_PIXEL)
@@ -46,3 +44,4 @@ E_stat_3 = (1 / math.sqrt((z_0))) * np.concatenate(
 if __name__ == '__main__':
     print(V_ar_SOURCE())
     print(E_stat_2)
+    plot(Circulator,E_stat_3,'test')

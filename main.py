@@ -24,19 +24,14 @@ if __name__ == '__main__':
     # R = 0.002
     # z_0=50
     #
-    B1_eta_1 = np.zeros(N)
-    B1_eta_2 = np.zeros(N)
-    B1_eta_3 = np.zeros(N)
 
-    print('B1_eta_1++++++++++++++++++++++++')
-    print(B1_eta_1)
+
 
     X_M13 = []
     X_M11 = []
     X_M12 = []
-    R = 2500
-    z0 = 120 * math.pi
-    z_0 = 0.0000001 * z0  # zo=50
+    z0 = 50
+    z_0 = 50
 
     for fi in range(f.size):
         # magnetiqueMaterial = MagneticMaterial(f)
@@ -44,47 +39,56 @@ if __name__ == '__main__':
         # magnetiqueMaterial.plot(magnetiqueMaterial.mu_eff,'mueff')
         # magnetiqueMaterial.plot(magnetiqueMaterial.keff,'keff')
         # gumn = gammaint(f, R, Hi, Ms, nu, magnetiqueMaterial)
-        gumn = gammaint( R, EPSr,mu[fi],k[fi],mu_eff[fi],k_eff[fi],beta[fi])
+        gumn0 = gammainInFunctionOfTheta( R, EPSr,mu[fi],k[fi],mu_eff[fi],beta[fi],0)
+        gumnPi3 = gammainInFunctionOfTheta( R, EPSr,mu[fi],k[fi],mu_eff[fi],beta[fi],PI/3)
+        gumn2Pi3 = gammainInFunctionOfTheta( R, EPSr,mu[fi],k[fi],mu_eff[fi],beta[fi],2*PI/3)
+        B1_eta_1 = np.zeros(N)
+        B1_eta_2 = np.zeros(N)
+        B1_eta_3 = np.zeros(N)
+        A1_eta_1 = np.zeros(N)
+        A1_eta_2 = np.zeros(N)
+        A1_eta_3 = np.zeros(N)
+        for i in range(20):
+            # Calculate A1_eta_1
+            # print('B1_eta_1')
+            # print(B1_eta_1)
+            #
+            # print('H_M')
+            # print(H_M)
+            # print('E_stat_1')
+            # print(E_stat_1)
+            A1_eta_1 = -B1_eta_1 * H_s + (1 / np.sqrt((z_0))) * E_stat_1
+            a1_eta_1 = np.fft.fft(A1_eta_1)
+            b1_eta_1 = gumn0 * a1_eta_1
+            B1_eta_1 = np.fft.ifft(b1_eta_1)
 
-        # Calculate A1_eta_1
-        A1_eta_1 = -B1_eta_1 + (1/np.sqrt((z_0)))* E_stat_1
-        # print('B1_eta_1')
-        # print(B1_eta_1)
-        #
-        # print('H_M')
-        # print(H_M)
-        # print('E_stat_1')
-        # print(E_stat_1)
-        a1_eta_1 = np.fft.fft(A1_eta_1)
-        b1_eta_1 = gumn * a1_eta_1
-        B1_eta_1 = np.fft.ifft(np.fft.fftshift(b1_eta_1))
+            # Calculate A1_eta_2
+            A1_eta_2 = -B1_eta_2 * H_s + (1 / np.sqrt((z_0))) * E_stat_2
+            a1_eta_2 = np.fft.fft(A1_eta_2)
+            b1_eta_2 = gumnPi3 * a1_eta_2
+            B1_eta_2 = np.fft.ifft((b1_eta_2))
 
-        # Calculate A1_eta_2
-        A1_eta_2 = -B1_eta_2 * H_M + (1/np.sqrt((z_0)))*E_stat_2
-        a1_eta_2 = np.fft.fft(A1_eta_2)
-        b1_eta_2 = gumn * a1_eta_2
-        B1_eta_2 = np.fft.ifft(np.fft.fftshift(b1_eta_2))
+            # Calculate A1_eta_3
+            A1_eta_3 = -B1_eta_3 * H_s + (1 / np.sqrt((z_0))) * E_stat_3
+            a1_eta_3 = (np.fft.fft(A1_eta_3))
+            b1_eta_3 = gumn2Pi3 * a1_eta_3
+            B1_eta_3 = np.fft.ifft((b1_eta_3))
 
-        # Calculate A1_eta_3
-        A1_eta_3 = -B1_eta_3 * H_M + (1/np.sqrt((z_0)))* E_stat_3
-        a1_eta_3 = np.fft.fftshift(np.fft.fft(A1_eta_3))
-        b1_eta_3 = gumn * a1_eta_3
-        B1_eta_3 = np.fft.ifft(np.fft.fftshift(b1_eta_3))
 
         # ****champ electrique pour l'?tat1
-        E1_eta1 =(np.sqrt((z_0)))*(A1_eta_1 + B1_eta_1)
+        E1_eta1 =(np.sqrt((z_0)))*(A1_eta_1 + B1_eta_1) *H_s
         # densit? du courant pour l'?tat1
-        J1_eta1 = (1/np.sqrt((z_0)))*(A1_eta_1 - B1_eta_1)
+        J1_eta1 = (1/np.sqrt((z_0)))*(A1_eta_1 - B1_eta_1) *H_s
         # ********************************************
         # champ electrique pour l'?tat2
-        E1_eta2 = (np.sqrt((z_0)))* (A1_eta_2 + B1_eta_2)
+        E1_eta2 = (np.sqrt((z_0)))* (A1_eta_2 + B1_eta_2) *H_s
         # densit? du courant pour l'?tat2
-        J1_eta2 = (1/np.sqrt((z_0)))* (A1_eta_2 - B1_eta_2)
+        J1_eta2 = (1/np.sqrt((z_0)))* (A1_eta_2 - B1_eta_2) *H_s
         # ********************************************
         # champ electrique pour l'?tat3
-        E1_eta3 = (np.sqrt((z_0)))*(A1_eta_3 + B1_eta_3)
+        E1_eta3 = (np.sqrt((z_0)))*(A1_eta_3 + B1_eta_3) *H_s
         # densit? du courant pour l'?tat2
-        J1_eta3 = (1/np.sqrt((z_0)))*(A1_eta_3 - B1_eta_3)
+        J1_eta3 = (1/np.sqrt((z_0)))*(A1_eta_3 - B1_eta_3) *H_s
 
         # /////////calcul des admmittances vue par la source pour chaque ?tats
         # admittance modal pour l'?ta_1
@@ -121,9 +125,11 @@ if __name__ == '__main__':
     # plt.plot(f,20*np.log10(np.abs(X_M12)) , label='12')
 
 
-    plt.plot(f,X_M13 , label='13')
-    plt.plot(f,X_M11 , label='11')
-    plt.plot(f,X_M12 , label='12')
+    plt.plot(f,-20*np.log(np.abs(X_M13)) , label='13')
+    plt.plot(f,-20*np.log(np.abs(X_M12)) , label='12')
+    plt.plot(f,-20*np.log(np.abs(X_M11)) , label='11')
+    # plt.plot(f,X_M11 , label='11')
+    # plt.plot(f,X_M12 , label='12')
 
     plt.xlabel('x')
     plt.ylabel('y')
@@ -139,4 +145,3 @@ if __name__ == '__main__':
     # plot(Circulator,E3,'source3')
     # V_ar_METAL()
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
